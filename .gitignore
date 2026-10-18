@@ -1,0 +1,21 @@
+# Rust
+/target
+**/*.rs.bk
+
+# Node
+node_modules/
+ui/dist/
+ui/.vite/
+
+# 运行产物
+*.db
+*.db-wal
+*.db-shm
+*.log
+mctrans-report-*
+
+# 编辑器/系统
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
