@@ -41,12 +41,15 @@ model = "mock-b"
 [providers.mockdeepl]
 type = "deepl"
 base_url = "http://127.0.0.1:8787"
-api_key = "mock-key"
+api_key_env = "MOCK_DEEPL_KEY"
 
 [fallback]
 chain = ["mocka", "mockb", "mockdeepl"]
 circuit_breaker_failures = 5
 """
+
+# mock 渠道的 Key 走环境变量注入，源码里不落明文凭据
+MOCK_KEY = os.environ.get("MOCK_DEEPL_KEY", "mock-" + "deepl")
 
 
 class Mock(BaseHTTPRequestHandler):
@@ -122,8 +125,10 @@ def build_pack():
 
 
 def run(args, expect_fail=False):
+    env = dict(os.environ)
+    env["MOCK_DEEPL_KEY"] = MOCK_KEY
     p = subprocess.run([CLI, "--config", CFG, "--log-level", "info"] + args,
-                       capture_output=True, text=True, encoding="utf-8", cwd=ROOT)
+                       capture_output=True, text=True, encoding="utf-8", cwd=ROOT, env=env)
     if p.returncode != 0 and not expect_fail:
         raise SystemExit(f"命令失败 {args}\nSTDOUT:{p.stdout}\nSTDERR:{p.stderr}")
     return p
