@@ -1,0 +1,25 @@
+[package]
+name = "mctrans-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Minecraft 整合包翻译核心库：解析、占位符保护、翻译渠道、SQLite 缓存、编排管线"
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+tokio.workspace = true
+reqwest.workspace = true
+rusqlite.workspace = true
+zip.workspace = true
+encoding_rs.workspace = true
+regex.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+walkdir.workspace = true
+fs2.workspace = true
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "io-util", "net"] }

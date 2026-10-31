@@ -1,0 +1,21 @@
+[package]
+name = "mctrans"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "MC 整合包翻译工具 CLI：FTB Quests 与 Mod 语言文件批量翻译"
+
+[[bin]]
+name = "mctrans"
+path = "src/main.rs"
+
+[dependencies]
+mctrans-core = { path = "../mctrans-core" }
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+toml.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+anyhow = "1"

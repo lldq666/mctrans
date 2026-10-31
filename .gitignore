@@ -19,3 +19,7 @@ mctrans-report-*
 Thumbs.db
 .idea/
 .vscode/
+
+# 测试临时产物
+/TEMPFILES/
+/tests/.tmp/

@@ -1,0 +1,83 @@
+# ===================== mctrans 示例配置 =====================
+# 放置为 ./mctrans.toml（当前目录）或 %APPDATA%/mctrans/mctrans.toml
+# API Key 一律从环境变量读取，不要把明文 Key 提交到 git。
+
+[general]
+src_lang = "en_us"          # 源语言（en_us）
+target_lang = "zh_cn"       # 目标语言（zh_cn / zh_tw …）
+mode = "zh_cn"              # zh_cn: 新增中文语言文件；inplace: 原地替换原文件
+concurrency = 8             # 并发批次数
+db_path = "auto"            # auto = 用户数据目录；也可写相对/绝对路径
+cache = true                # SQLite 缓存开关
+# active_provider 由 `mctrans config use <渠道>` / `translate --provider` 自动维护，
+# 一般无需手改。当前选中的渠道对之后所有 run 立即生效。
+# active_provider = "deepl"
+
+[placeholder]
+sentinel = "⟦{}⟧"          # 占位符掩码模板，{} 处为序号
+amp_codes = true            # 保护 &6 风格颜色码
+strict_new = true           # 译文引入原文没有的占位符时拒绝该译文
+custom_patterns = []        # 自定义占位符正则，如 ["#\\[quest\\]#"]
+
+[limits]
+max_batch_texts = 40        # 单批最多文本条数
+max_batch_chars = 20000     # 单批最多字符数
+max_entry_chars = 8000      # 单条超过则跳过（v1.1 支持安全拆分）
+request_timeout_secs = 60
+max_retries = 5             # 单渠道内重试次数（指数退避 + 抖动）
+
+# ===================== 翻译渠道 =====================
+# 每个渠道一段。[providers.<名字>] 的 <名字> 即渠道名，用于 --provider / config use。
+
+[providers.deepl]
+type = "deepl"
+base_url = "https://api.deepl.com"        # 免费版用 https://api-free.deepl.com
+api_key_env = "DEEPL_API_KEY"             # 从该环境变量读 Key
+formality = "default"                     # more / less / default
+
+[providers.gpt]
+type = "openai"
+base_url = "https://api.deepseek.com/v1"  # 任何 OpenAI 兼容端点（DeepSeek/Moonshot/OpenAI/Ollama…）
+api_key_env = "DS_API_KEY"
+model = "deepseek-chat"
+temperature = 0.0
+structured_output = true                  # 提供方支持 response_format=json_object 时开
+
+# 回退顺序：当前渠道失败（限流/5xx/熔断）时按序切换。
+[fallback]
+chain = ["deepl", "gpt"]
+circuit_breaker_failures = 5              # 连续失败 N 批后本 run 熔断该渠道
+
+# ===================== 目标文件规则 =====================
+# kind: json | lang | snbt_map | snbt_fields
+# match: glob（** 跨目录，* 单层）
+
+[[targets]]
+name = "mod-lang-json"
+kind = "json"
+match = [
+  "mods/**/assets/*/lang/en_us.json",
+  "kubejs/assets/*/lang/en_us.json",
+  "resources/**/assets/*/lang/en_us.json",
+]
+
+[[targets]]
+name = "mod-lang-legacy"
+kind = "lang"
+match = ["mods/**/assets/*/lang/en_us.lang"]
+
+[[targets]]
+name = "ftb-quests-lang-snbt"
+kind = "snbt_map"
+match = ["config/ftbquests/quests/lang/*.snbt"]
+
+[[targets]]
+name = "ftb-quests-lang-json"
+kind = "json"
+match = ["config/ftbquests/quests/lang/*.json"]
+
+[[targets]]
+name = "ftb-quests-chapters"
+kind = "snbt_fields"
+match = ["config/ftbquests/quests/chapters/**/*.snbt"]
+text_keys = ["title", "subtitle", "description", "text"]
