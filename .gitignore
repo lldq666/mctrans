@@ -29,3 +29,6 @@ Thumbs.db
 # 测试临时产物
 /TEMPFILES/
 /tests/.tmp/
+
+# 内部工作笔记（不发布）
+/.workbuddy/
